@@ -10,8 +10,11 @@ pipeline {
         stage('Installation des dépendances') {
             steps {
                 dir("${env.WORKSPACE}") {
-                    // Installer les dépendances Node du projet
+                    // Installer les dépendances Node
                     sh 'npm install'
+
+                    // Installer les navigateurs nécessaires pour Playwright
+                    sh 'npx playwright install'
                 }
             }
         }
