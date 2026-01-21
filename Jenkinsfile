@@ -14,7 +14,7 @@ pipeline {
                 sh 'rm -rf repo'
 
                 // Cloner le repo
-                sh 'git clone https://github.com/MisterFrani/Playwright.git repo'
+                sh 'git clone https://github.com/QP16CAP/PlaywrightJENKINS.git repo'
 
                 // Vérifier les versions Node et Playwright
                 sh 'node -v'
