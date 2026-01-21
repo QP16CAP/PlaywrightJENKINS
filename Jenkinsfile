@@ -7,25 +7,23 @@ pipeline {
     }
 
     stages {
-        stage('Préparation') {
-            steps {
-                // Vérifier les versions Node et Playwright
-                sh 'node -v'
-                sh 'npx playwright --version'
-            }
-        }
-
         stage('Installation des dépendances') {
             steps {
                 dir("${env.WORKSPACE}") {
+                    // Installer les dépendances Node du projet
                     sh 'npm install'
                 }
             }
         }
 
-        stage('Exécution des tests Playwright') {
+        stage('Vérification et tests Playwright') {
             steps {
                 dir("${env.WORKSPACE}") {
+                    // Vérifier les versions Node et Playwright
+                    sh 'node -v'
+                    sh 'npx playwright --version'
+
+                    // Lancer les tests Playwright pour Chromium
                     sh 'npx playwright test --project=chromium'
                 }
             }
