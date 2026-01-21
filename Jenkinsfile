@@ -7,26 +7,32 @@ pipeline {
     }
 
     stages {
+        stage('Préparation du projet') {
+            steps {
+                // Supprimer l'ancien repo
+                sh 'rm -rf repo'
+
+                // Cloner le repo
+                sh 'git clone https://github.com/QP16CAP/PlaywrightJENKINS.git repo'
+            }
+        }
+
         stage('Installation des dépendances') {
             steps {
-                dir("${env.WORKSPACE}") {
-                    // Installer les dépendances Node
+                // Aller dans le dossier repo
+                dir('repo') {
                     sh 'npm install'
-
-                    // Installer les navigateurs nécessaires pour Playwright
+                    // Installer les navigateurs Playwright
                     sh 'npx playwright install'
                 }
             }
         }
 
-        stage('Vérification et tests Playwright') {
+        stage('Exécution des tests Playwright') {
             steps {
-                dir("${env.WORKSPACE}") {
-                    // Vérifier les versions Node et Playwright
+                dir('repo') {
                     sh 'node -v'
                     sh 'npx playwright --version'
-
-                    // Lancer les tests Playwright pour Chromium
                     sh 'npx playwright test --project=chromium'
                 }
             }
