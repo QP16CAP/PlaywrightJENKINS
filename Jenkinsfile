@@ -1,27 +1,23 @@
 pipeline {
-    agent {
-        docker {
-            image 'playwright/chromium:playwright-1.56.1'
-            args '--user=root --entrypoint=""'
-        }
-    }
+    agent any
 
     stages {
-        stage('Démarrage configuration du projet') {
+        stage('Clonage du projet') {
             steps {
-
-                // Supprimer l'ancien repo
                 sh 'rm -rf repo'
+                git url: 'https://github.com/QP16CAP/PlaywrightJENKINS.git', branch: 'main'
+            }
+        }
 
-                // Cloner le repo
-                sh 'git clone https://github.com/QP16CAP/PlaywrightJENKINS.git repo'
-
-                // Vérifier les versions Node et Playwright
-                sh 'node -v'
-                sh 'npx playwright --version'
-
-                // Accéder au dossier repo et exécuter les tests
-                dir('repo') {
+        stage('Exécution des tests Playwright') {
+            agent {
+                docker {
+                    image 'playwright/chromium:playwright-1.56.1'
+                    args '--user=root --entrypoint=""'
+                }
+            }
+            steps {
+                dir('PlaywrightJENKINS') { // nom du dossier cloné
                     sh 'npm install'
                     sh 'npx playwright test --project=chromium'
                 }
