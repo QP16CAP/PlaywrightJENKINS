@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'mcr.microsoft.com/playwright:v1.57.0-noble'
-            args '--user=root --entrypoint="" -v $WORKSPACE/allure-results:/allure-results'
+            args '--user=root --entrypoint=""'
         }
     }
 
@@ -18,24 +18,17 @@ pipeline {
                 sh 'npx playwright --version'
                 sh 'rm -rf repo'
                 sh 'git clone https://github.com/QP16CAP/PlaywrightJENKINS.git repo'
-
-                dir('repo') {
-                    sh 'npm ci'
-                }
+                dir('repo') { sh 'npm ci' }
             }
         }
 
         stage('Exécution des tests Playwright') {
             steps {
                 dir('repo') {
-                    // Nettoyer ancien rapport
                     sh 'rm -rf allure-results'
-                    
                     script {
                         if (params.Navigateur == 'chromium') {
                             sh 'npx playwright test --project=chromium --reporter=allure-playwright'
-                            // Copier les résultats vers le volume partagé
-                            sh 'cp -r allure-results/* /allure-results/'
                         } else {
                             error 'Navigateur non valide sélectionné'
                         }
@@ -43,12 +36,22 @@ pipeline {
                 }
             }
         }
+
+        stage('Récupération des résultats') {
+            steps {
+                // Copier les résultats depuis le conteneur vers l'hôte
+                sh 'cp -r repo/allure-results $WORKSPACE/allure-results'
+            }
+        }
     }
 
     post {
         always {
-            // Génération du rapport Allure sur l’hôte Jenkins
-            allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
+            // Génération du rapport Allure sur l'hôte Jenkins
+            node {
+                // Cette étape se fait sur l'hôte, pas dans le conteneur
+                allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
+            }
         }
     }
 }
