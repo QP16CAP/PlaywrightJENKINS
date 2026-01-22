@@ -24,7 +24,6 @@ pipeline {
         stage('Préparation du projet') {
             steps {
                 sh 'node -v'
-                sh 'npx playwright --version'
 
                 // Cloner le repo
                 sh 'rm -rf rep'
@@ -32,6 +31,7 @@ pipeline {
 
                 dir('rep') {
                     sh 'npm ci'
+                    sh 'npx playwright --version' // <-- déplacer ici après npm ci
                 }
             }
         }
@@ -40,10 +40,8 @@ pipeline {
             steps {
                 dir('rep') {
                     script {
-                        // Nettoyage ancien rapport Allure
                         sh 'rm -rf allure-results'
 
-                        // Lancer le test selon le navigateur choisi
                         if (params.Navigateur == 'chromium') {
                             sh 'npx playwright test --project=chromium'
                         } else if (params.Navigateur == 'firefox') {
