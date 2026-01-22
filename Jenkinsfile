@@ -2,28 +2,20 @@ pipeline {
     agent {
         docker {
             image 'mcr.microsoft.com/playwright:v1.57.0-noble'
-            args '--user=root --entrypoint=""'
+            args '--user=root --entrypoint="" -v $WORKSPACE/allure-results:/allure-results'
         }
     }
 
     parameters {
-        choice(
-            name: 'Navigateur',
-            choices: ['chromium', 'webkit', 'firefox'],
-            description: 'Sélectionner un navigateur pour le test',
-        )
+        choice(name: 'Navigateur', choices: ['chromium', 'webkit', 'firefox'], description: 'Sélectionner un navigateur')
         choice(name: 'tag', choices:['invalide','valide'])
     }
 
     stages {
-
         stage('Préparation du projet') {
             steps {
                 sh 'node -v'
                 sh 'npx playwright --version'
-
-                //sh 'apt-get update && apt-get install -y git'
-
                 sh 'rm -rf repo'
                 sh 'git clone https://github.com/QP16CAP/PlaywrightJENKINS.git repo'
 
@@ -36,14 +28,14 @@ pipeline {
         stage('Exécution des tests Playwright') {
             steps {
                 dir('repo') {
+                    // Nettoyer ancien rapport
+                    sh 'rm -rf allure-results'
+                    
                     script {
-                        // Nettoyage ancien rapport Allure
-                        sh 'rm -rf allure-results'
-
                         if (params.Navigateur == 'chromium') {
-                            //sh 'npx playwright test --project=chromium'
-                              sh 'npx playwright test --project=chromium --reporter=allure-playwright'
-                            stash name: 'allure-results', includes: 'allure-results/*'
+                            sh 'npx playwright test --project=chromium --reporter=allure-playwright'
+                            // Copier les résultats vers le volume partagé
+                            sh 'cp -r allure-results/* /allure-results/'
                         } else {
                             error 'Navigateur non valide sélectionné'
                         }
@@ -54,18 +46,9 @@ pipeline {
     }
 
     post {
-        always{
-            // script {
-            //     if(params.tag == 'valide'){
-            //         build job: 'login'
-            //     }else {
-            //         sh 'echo "le tags choisi est valide"'
-            //     }
-            //generer et lancer le rapport allure
-            unstash 'allure-results'
+        always {
+            // Génération du rapport Allure sur l’hôte Jenkins
             allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
-            }
         }
+    }
 }
-
-
