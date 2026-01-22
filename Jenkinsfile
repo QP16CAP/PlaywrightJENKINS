@@ -41,7 +41,9 @@ pipeline {
                         sh 'rm -rf allure-results'
 
                         if (params.Navigateur == 'chromium') {
-                            sh 'npx playwright test --project=chromium'
+                            //sh 'npx playwright test --project=chromium'
+                            sh 'npx playwright test --project=chromium --repoter=allure-playwright'
+                            stash name: 'allure-results', includes: 'allure-results/*'
                         } else {
                             error 'Navigateur non valide sélectionné'
                         }
@@ -52,20 +54,16 @@ pipeline {
     }
 
     post {
-        success{
-            script {
-                if(params.tag == 'valide'){
-                    build job: 'login'
-                }else {
-                    sh 'echo "le tags choisi est valide"'
-                }
-                //lancer rapport allure apres le succes des tests
-                script {
-                    dir('repo') {
-                        sh 'npx allure generate allure-results --clean -o allure-report || true'
-                        sh 'npx allure open allure-report'
-                    }
-                }
+        always{
+            // script {
+            //     if(params.tag == 'valide'){
+            //         build job: 'login'
+            //     }else {
+            //         sh 'echo "le tags choisi est valide"'
+            //     }
+            //generer et lancer le rapport allure
+            unstash 'allure-results'
+            allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
             }
         }
     }
