@@ -54,7 +54,7 @@ pipeline {
     post {
         success{
             script {
-                if(params.tag == 'regression'){
+                if(params.tag == 'smoke'){
                     build job: 'cron'
                 }else {
                     sh 'echo "le tags choisi est invalide"'
