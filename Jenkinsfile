@@ -54,13 +54,10 @@ pipeline {
     post {
         success{
             script {
-                stage('Run smoketest') {
-                    when {
-                        expression { params.tag == 'valide' }
-                    }
-                    steps {
-                        build job: 'smoketest' // par défaut propagate = true
-                    }
+                if(params.tag == 'valide'){
+                    build job: 'smoketest'
+                }else {
+                    sh 'echo "le tags choisi est valide"'
                 }
             }
         }
