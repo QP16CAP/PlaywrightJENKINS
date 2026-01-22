@@ -12,11 +12,7 @@ pipeline {
             choices: ['chromium', 'webkit', 'firefox'],
             description: 'Sélectionner un navigateur pour le test'
         )
-        choice(
-            name: 'tag',
-            choices: ['smoke', 'regression'],
-            description: 'Sélectionner le type de test'
-        )
+
     }
 
     stages {
