@@ -7,30 +7,41 @@ pipeline {
     }
 
     parameters {
-        choice(name: 'Navigateur', choices: ['chromium', 'webkit', 'firefox'], description: 'Sélectionner un navigateur')
-        choice(name: 'tag', choices:['invalide','valide'])
+        choice(
+            name: 'Navigateur',
+            choices: ['chromium', 'webkit', 'firefox'],
+            description: 'Sélectionner un navigateur pour le test'
+        )
+        choice(name: 'tag', choices: ['invalide','valide'])
     }
 
     stages {
+
         stage('Préparation du projet') {
             steps {
                 sh 'node -v'
                 sh 'npx playwright --version'
                 sh 'rm -rf repo'
                 sh 'git clone https://github.com/QP16CAP/PlaywrightJENKINS.git repo'
-                dir('repo') { sh 'npm ci' }
+
+                dir('repo') {
+                    sh 'npm ci'
+                }
             }
         }
 
         stage('Exécution des tests Playwright') {
             steps {
                 dir('repo') {
+                    // Nettoyage des anciens résultats
                     sh 'rm -rf allure-results'
+
                     script {
                         if (params.Navigateur == 'chromium') {
+                            // Lancer les tests avec Allure
                             sh 'npx playwright test --project=chromium --reporter=allure-playwright'
                         } else {
-                            error 'Navigateur non valide sélectionné'
+                            error "Navigateur non valide sélectionné"
                         }
                     }
                 }
@@ -39,7 +50,7 @@ pipeline {
 
         stage('Récupération des résultats') {
             steps {
-                // Copier les résultats depuis le conteneur vers l'hôte
+                // Copier les résultats depuis le conteneur Docker vers l'hôte Jenkins
                 sh 'cp -r repo/allure-results $WORKSPACE/allure-results'
             }
         }
@@ -47,9 +58,8 @@ pipeline {
 
     post {
         always {
-            // Génération du rapport Allure sur l'hôte Jenkins
+            // Générer le rapport Allure sur l'hôte Jenkins
             node {
-                // Cette étape se fait sur l'hôte, pas dans le conteneur
                 allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
             }
         }
