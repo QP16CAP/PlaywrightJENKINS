@@ -33,12 +33,10 @@ pipeline {
         stage('Exécution des tests Playwright') {
             steps {
                 dir('repo') {
-                    // Nettoyage des anciens résultats
                     sh 'rm -rf allure-results'
 
                     script {
                         if (params.Navigateur == 'chromium') {
-                            // Lancer les tests avec Allure
                             sh 'npx playwright test --project=chromium --reporter=allure-playwright'
                         } else {
                             error "Navigateur non valide sélectionné"
@@ -59,9 +57,7 @@ pipeline {
     post {
         always {
             // Générer le rapport Allure sur l'hôte Jenkins
-            node {
-                allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
-            }
+            allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
         }
     }
 }
