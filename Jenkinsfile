@@ -5,10 +5,16 @@ pipeline {
             args '--user=root --entrypoint=""'
         }
     }
+    Parameters{
+        choice(name: 'Navigateur', choices: ['chromium','webkit', 'firefox'], description: ('selectionner un navigateur pour le test'))
+    }
 
     stages {
         stage('Préparation du projet') {
             steps {
+                sh 'node -v'
+                sh 'npx playwright --version'
+
                 // Installer git
                 sh 'apt-get update && apt-get install -y git'
 
@@ -20,8 +26,9 @@ pipeline {
 
                 // Installer les dépendances et navigateurs Playwright
                 dir('repo') {
-                    sh 'npm install'
-                    sh 'npx playwright install'
+                    //sh 'npm install'
+                    //sh 'npx playwright install'
+                    sh 'npm ci'
                 }
             }
         }
@@ -29,9 +36,9 @@ pipeline {
         stage('Exécution des tests Playwright') {
             steps {
                 dir('repo') {
-                    sh 'node -v'
-                    sh 'npx playwright --version'
-                    sh 'npx playwright test --project=chromium'
+                    script { if (params.Navigateur == chromium)
+                    {sh 'npx playwright test --project=chromium'}
+                    else {echo 'veuillez choisir le bon navigateur'}}
                 }
             }
         }
