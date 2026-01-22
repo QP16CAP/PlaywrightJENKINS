@@ -51,15 +51,21 @@ pipeline {
     }
 
     post {
-        always {
-            dir('repo') {
-                // ✅ Allure Jenkins Plugin
-                allure(
-                    includeProperties: false,
-                    jdk: '',
-                    results: [[path: 'allure-results']]
-                )
-            }
+    always {
+        dir('repo') {
+            sh '''
+              npx allure generate allure-results --clean -o allure-report
+            '''
+            publishHTML([
+                reportName: 'Allure Report',
+                reportDir: 'allure-report',
+                reportFiles: 'index.html',
+                keepAll: true,
+                alwaysLinkToLastBuild: true,
+                allowMissing: false
+            ])
         }
     }
+}
+
 }
