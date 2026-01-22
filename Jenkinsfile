@@ -17,7 +17,7 @@ pipeline {
                 sh 'npx playwright --version'
 
                 // Installer git
-                sh 'apt-get update && apt-get install -y git'
+                //sh 'apt-get update && apt-get install -y git'
 
                 // Supprimer l'ancien repo si présent
                 sh 'rm -rf repo'
