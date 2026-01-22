@@ -59,6 +59,13 @@ pipeline {
                 }else {
                     sh 'echo "le tags choisi est valide"'
                 }
+                //lancer rapport allure apres le succes des tests
+                script {
+                    dir('repo') {
+                        sh 'npx allure generate allure-results --clean -o allure-report || true'
+                        sh 'npx allure open allure-report'
+                    }
+                }
             }
         }
     }

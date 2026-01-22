@@ -27,7 +27,7 @@ pipeline {
 
                 dir('rep') {
                     sh 'npm ci'
-                    sh 'npx playwright --version' // <-- déplacer ici après npm ci
+                    sh 'npx playwright --version' 
                 }
             }
         }
