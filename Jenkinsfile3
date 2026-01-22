@@ -16,19 +16,19 @@ pipeline {
                 stage('Checkout') {
                     steps {
                         sh 'rm -rf repo'
-                        sh 'git clone https://github.com/admanehocine/PlaywrightJenkins.git repo'
+                        sh 'git clone https://github.com/QP16CAP/PlaywrightJENKINS.git repo3'
                     }
                 }
                 stage('install deps') {
                     steps {
-                        dir('repo') {
+                        dir('repo3') {
                             sh 'npm ci'
                         }
                     }
                 }
                 stage('run tests') {
                     steps {
-                        dir('repo') {
+                        dir('repo3') {
                             script {
                                 if(params.ALLURE) {
                                     //echo "Lancement des tests avec Allure pour le tag ${params.TAG}"
@@ -49,6 +49,7 @@ pipeline {
     post {
         always {
             script {
+                dir('repo3') {
                 if(params.ALLURE) {
                     sh 'rm -rf allure-results/*'
                     unstash 'allure-results'
@@ -60,4 +61,5 @@ pipeline {
             }
         }
     }
+}
 }
