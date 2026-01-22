@@ -57,16 +57,4 @@ pipeline {
         }
     }
 
-    post {
-        success {
-            script {
-                if (params.tag == 'smoke') {
-                    echo "Tag smoke détecté, lancement du job login"
-                    build job: 'login'
-                } else {
-                    echo "Tag regression choisi, aucun job à lancer"
-                }
-            }
-        }
-    }
 }

@@ -55,7 +55,7 @@ pipeline {
         success{
             script {
                 if(params.tag == 'valide'){
-                    build job: 'smoketest'
+                    build job: 'login'
                 }else {
                     sh 'echo "le tags choisi est valide"'
                 }
