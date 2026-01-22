@@ -21,20 +21,14 @@ pipeline {
                 sh 'node -v'
                 sh 'npx playwright --version'
 
-                // Installer git
                 sh 'apt-get update && apt-get install -y git'
-
-                // Supprimer l’ancien repo
                 sh 'rm -rf repo'
-
-                // Cloner le repo
                 sh 'git clone https://github.com/QP16CAP/PlaywrightJENKINS.git repo'
 
                 dir('repo') {
                     sh 'npm ci'
-
-                    // ✅ AJOUT – Installation des navigateurs Playwright
-                    //sh 'npx playwright install --with-deps'
+                    // ⚠️ inutile avec l’image Playwright officielle
+                    // sh 'npx playwright install --with-deps'
                 }
             }
         }
@@ -42,15 +36,15 @@ pipeline {
         stage('Exécution des tests Playwright') {
             steps {
                 dir('repo') {
+                    sh 'rm -rf allure-results'
+
                     script {
-
-                        // ✅ AJOUT – Nettoyage ancien rapport Allure
-                        sh 'rm -rf allure-results'
-
                         if (params.Navigateur == 'chromium') {
                             sh 'npx playwright test --project=chromium'
-                        } else {
-                            error 'Navigateur non valide sélectionné'
+                        } else if (params.Navigateur == 'firefox') {
+                            sh 'npx playwright test --project=firefox'
+                        } else if (params.Navigateur == 'webkit') {
+                            sh 'npx playwright test --project=webkit'
                         }
                     }
                 }
@@ -61,8 +55,6 @@ pipeline {
     post {
         always {
             dir('repo') {
-
-                // ✅ AJOUT – Publication du rapport Allure dans Jenkins
                 allure(
                     includeProperties: false,
                     jdk: '',
