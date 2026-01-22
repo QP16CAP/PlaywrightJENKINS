@@ -13,7 +13,7 @@ pipeline {
             description: 'Sélectionner un navigateur pour le test',
             defaultValue: 'chromium'
         )
-        choice(name: 'tag', choices:['invalide','valide'])
+        choice(name: 'tag', choices:['smoke','regression'])
     }
 
     stages {
@@ -55,8 +55,8 @@ pipeline {
     post {
         success{
             script {
-                if(params.tag == 'valide'){
-                    build job: 'smoketest'
+                if(params.tag == 'regression'){
+                    build job: 'cron'
                 }else {
                     sh 'echo "le tags choisi est invalide"'
                 }
