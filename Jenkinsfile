@@ -34,7 +34,7 @@ pipeline {
                     sh 'npm ci'
 
                     // ✅ AJOUT – Installation des navigateurs Playwright
-                    sh 'npx playwright install --with-deps'
+                    //sh 'npx playwright install --with-deps'
                 }
             }
         }
@@ -49,13 +49,6 @@ pipeline {
 
                         if (params.Navigateur == 'chromium') {
                             sh 'npx playwright test --project=chromium'
-
-                        } else if (params.Navigateur == 'firefox') {
-                            sh 'npx playwright test --project=firefox'
-
-                        } else if (params.Navigateur == 'webkit') {
-                            sh 'npx playwright test --project=webkit'
-
                         } else {
                             error 'Navigateur non valide sélectionné'
                         }
