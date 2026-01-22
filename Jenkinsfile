@@ -42,7 +42,7 @@ pipeline {
 
                         if (params.Navigateur == 'chromium') {
                             //sh 'npx playwright test --project=chromium'
-                            sh 'npx playwright test --project=chromium --repoter=allure-playwright'
+                              sh 'npx playwright test --project=chromium --reporter=allure-playwright'
                             stash name: 'allure-results', includes: 'allure-results/*'
                         } else {
                             error 'Navigateur non valide sélectionné'
