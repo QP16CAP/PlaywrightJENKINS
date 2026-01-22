@@ -10,9 +10,13 @@ pipeline {
         choice(
             name: 'Navigateur',
             choices: ['chromium', 'webkit', 'firefox'],
-            description: 'Sélectionner un navigateur pour le test',
+            description: 'Sélectionner un navigateur pour le test'
         )
-        choice(name: 'tag', choices:['smoke','regression'])
+        choice(
+            name: 'tag',
+            choices: ['smoke', 'regression'],
+            description: 'Sélectionner le type de test'
+        )
     }
 
     stages {
@@ -22,12 +26,11 @@ pipeline {
                 sh 'node -v'
                 sh 'npx playwright --version'
 
-                //sh 'apt-get update && apt-get install -y git'
+                // Cloner le repo
+                sh 'rm -rf rep'
+                sh 'git clone https://github.com/QP16CAP/PlaywrightJENKINS.git rep'
 
-                sh 'rm -rf repo'
-                sh 'git clone https://github.com/QP16CAP/PlaywrightJENKINS.git repo'
-
-                dir('repo') {
+                dir('rep') {
                     sh 'npm ci'
                 }
             }
@@ -35,15 +38,20 @@ pipeline {
 
         stage('Exécution des tests Playwright') {
             steps {
-                dir('repo') {
+                dir('rep') {
                     script {
                         // Nettoyage ancien rapport Allure
                         sh 'rm -rf allure-results'
 
+                        // Lancer le test selon le navigateur choisi
                         if (params.Navigateur == 'chromium') {
                             sh 'npx playwright test --project=chromium'
+                        } else if (params.Navigateur == 'firefox') {
+                            sh 'npx playwright test --project=firefox'
+                        } else if (params.Navigateur == 'webkit') {
+                            sh 'npx playwright test --project=webkit'
                         } else {
-                            error 'Navigateur non valide sélectionné'
+                            error "Navigateur non valide sélectionné"
                         }
                     }
                 }
@@ -52,15 +60,15 @@ pipeline {
     }
 
     post {
-        success{
+        success {
             script {
-                if(params.tag == 'smoke'){
+                if (params.tag == 'smoke') {
+                    echo "Tag smoke détecté, lancement du job cron"
                     build job: 'cron'
-                }else {
-                    sh 'echo "le tags choisi est invalide"'
+                } else {
+                    echo "Tag regression choisi, aucun job à lancer"
                 }
             }
         }
     }
-
 }
