@@ -36,7 +36,7 @@ pipeline {
         stage('Exécution des tests Playwright') {
             steps {
                 dir('repo') {
-                    script { if (params.Navigateur == chromium)
+                    script { if (params.Navigateur == 'chromium')
                     {sh 'npx playwright test --project=chromium'}
                     else {echo 'veuillez choisir le bon navigateur'}}
                 }
